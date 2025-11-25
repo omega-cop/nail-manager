@@ -19,12 +19,12 @@ interface SummaryCardProps {
 }
 
 const SummaryCard: React.FC<SummaryCardProps> = ({ title, amount, description, isHighlighted = false, chartData }) => (
-    <div className={`p-6 rounded-lg shadow-sm ${isHighlighted ? 'bg-text-main text-white' : 'bg-surface'}`}>
-        <h3 className={`text-sm font-medium ${isHighlighted ? 'text-gray-300' : 'text-text-light'}`}>{title}</h3>
-        <p className={`text-3xl font-bold mt-2 ${isHighlighted ? 'text-white' : 'text-text-main'}`}>{formatCurrency(amount)}</p>
-        <p className={`text-xs mt-1 ${isHighlighted ? 'text-gray-400' : 'text-text-light'}`}>{description}</p>
+    <div className={`p-4 sm:p-6 rounded-lg shadow-sm ${isHighlighted ? 'bg-text-main text-white' : 'bg-surface'}`}>
+        <h3 className={`text-xs sm:text-sm font-medium ${isHighlighted ? 'text-gray-300' : 'text-text-light'}`}>{title}</h3>
+        <p className={`text-2xl sm:text-3xl font-bold mt-1 sm:mt-2 ${isHighlighted ? 'text-white' : 'text-text-main'}`}>{formatCurrency(amount)}</p>
+        <p className={`text-[10px] sm:text-xs mt-1 ${isHighlighted ? 'text-gray-400' : 'text-text-light'}`}>{description}</p>
         {isHighlighted && chartData && (
-             <div className="w-full h-16 mt-4 -mb-2 -ml-2">
+             <div className="w-full h-12 sm:h-16 mt-3 sm:mt-4 -mb-2 -ml-2">
                 <ResponsiveContainer>
                     <AreaChart data={chartData} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
                         <defs>
@@ -97,20 +97,20 @@ const Dashboard: React.FC<DashboardProps> = ({ bills, onViewRevenueHistory }) =>
   }, [bills]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-text-main">Tổng Quan</h2>
-        <p className="text-text-light mt-1">Đây là báo cáo nhanh về hoạt động kinh doanh của bạn.</p>
+        <h2 className="text-xl sm:text-2xl font-bold text-text-main">Tổng Quan</h2>
+        <p className="text-sm sm:text-base text-text-light mt-1">Đây là báo cáo nhanh về hoạt động kinh doanh của bạn.</p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
         <SummaryCard title="Doanh Thu Hôm Nay" amount={revenueToday} description="Tổng doanh thu hôm nay" isHighlighted={true} chartData={dailyRevenueData} />
         <SummaryCard title="Doanh Thu Tuần Này" amount={revenueThisWeek} description="Tổng doanh thu tuần này"/>
         <SummaryCard title="Doanh Thu Tháng Này" amount={revenueThisMonth} description="Tổng doanh thu tháng này"/>
       </div>
       
-      <div className="mt-8 bg-surface p-4 sm:p-6 rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold text-text-main mb-4 flex items-center justify-between">
+      <div className="mt-6 sm:mt-8 bg-surface p-4 sm:p-6 rounded-lg shadow-sm">
+        <h3 className="text-base sm:text-lg font-semibold text-text-main mb-4 flex items-center justify-between">
             <span>Doanh Thu 7 Ngày Qua</span>
             <button
               onClick={onViewRevenueHistory}
@@ -120,15 +120,15 @@ const Dashboard: React.FC<DashboardProps> = ({ bills, onViewRevenueHistory }) =>
             </button>
         </h3>
         {bills.length > 0 ? (
-          <div style={{ width: '100%', height: 300 }}>
+          <div style={{ width: '100%', height: 250 }}>
               <ResponsiveContainer>
-                  <BarChart data={weeklyChartData} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
+                  <BarChart data={weeklyChartData} margin={{ top: 5, right: 10, left: -25, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb"/>
-                      <XAxis dataKey="name" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
-                      <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${new Intl.NumberFormat('vi-VN').format(value)}`}/>
+                      <XAxis dataKey="name" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} />
+                      <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(value) => `${new Intl.NumberFormat('vi-VN').format(value)}`}/>
                       <Tooltip 
                         formatter={(value: number) => [formatCurrency(value), "Doanh thu"]} 
-                        contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '0.5rem' }}
+                        contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '12px' }}
                         labelStyle={{ fontWeight: 'bold' }}
                       />
                       <Bar dataKey="revenue" fill="#4F46E5" name="Doanh thu" radius={[4, 4, 0, 0]}/>
@@ -136,9 +136,9 @@ const Dashboard: React.FC<DashboardProps> = ({ bills, onViewRevenueHistory }) =>
               </ResponsiveContainer>
           </div>
         ) : (
-          <div className="text-center py-16">
+          <div className="text-center py-12 sm:py-16">
             <p className="text-text-light">Không có dữ liệu doanh thu cho 7 ngày qua.</p>
-             <p className="text-sm text-gray-400 mt-2">Khi bạn tạo hóa đơn, biểu đồ sẽ xuất hiện ở đây.</p>
+             <p className="text-xs sm:text-sm text-gray-400 mt-2">Khi bạn tạo hóa đơn, biểu đồ sẽ xuất hiện ở đây.</p>
           </div>
         )}
       </div>
