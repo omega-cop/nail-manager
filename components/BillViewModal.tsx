@@ -1,4 +1,3 @@
-
 import React, { useRef, useState } from 'react';
 import type { Bill } from '../types';
 import { formatCurrency, formatSpecificDateTime } from '../utils/dateUtils';
@@ -201,12 +200,12 @@ const BillViewModal: React.FC<BillViewModalProps> = ({ bill, onClose, shopName, 
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 p-4" onClick={onClose}>
-      <div className="bg-white rounded-lg shadow-2xl w-full max-w-md h-full max-h-[85vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white rounded-lg shadow-2xl w-full max-w-md flex flex-col max-h-[85dvh] sm:max-h-[85vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
         
         {/* Main Printable Area Wrapper - Now scrollable as a whole */}
         <div 
           ref={printableContentRef} 
-          className={`flex-grow overflow-y-auto custom-scrollbar rounded-t-lg print-reset-scroll ${themeStyles.container}`} 
+          className={`flex-grow overflow-y-auto custom-scrollbar print-reset-scroll ${themeStyles.container}`} 
           style={{ color: 'black' }}
         >
             
@@ -282,7 +281,7 @@ const BillViewModal: React.FC<BillViewModalProps> = ({ bill, onClose, shopName, 
         </div>
 
         {/* Action Buttons: Fixed at very bottom of modal */}
-        <div className="no-print p-4 bg-gray-50 flex justify-end space-x-3 border-t border-gray-200 shrink-0 rounded-b-lg z-10">
+        <div className="no-print p-4 bg-gray-50 flex justify-end space-x-3 border-t border-gray-200 shrink-0 z-10">
             <button onClick={onClose} className="px-3 sm:px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-semibold text-sm sm:text-base">Đóng</button>
             <button onClick={handleDownloadImage} disabled={isDownloading} className="px-3 sm:px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold text-sm sm:text-base flex items-center gap-2">
                 <ArrowDownTrayIcon className="w-4 h-4 sm:w-5 sm:h-5" />
