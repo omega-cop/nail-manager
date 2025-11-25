@@ -203,11 +203,15 @@ const BillViewModal: React.FC<BillViewModalProps> = ({ bill, onClose, shopName, 
     <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 p-4" onClick={onClose}>
       <div className="bg-white rounded-lg shadow-2xl w-full max-w-md h-full max-h-[85vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
         
-        {/* Main Printable Area Wrapper - Flex column layout */}
-        <div ref={printableContentRef} className={`flex flex-col flex-grow min-h-0 rounded-t-lg print-reset-height ${themeStyles.container}`} style={{ color: 'black' }}>
+        {/* Main Printable Area Wrapper - Now scrollable as a whole */}
+        <div 
+          ref={printableContentRef} 
+          className={`flex-grow overflow-y-auto custom-scrollbar rounded-t-lg print-reset-scroll ${themeStyles.container}`} 
+          style={{ color: 'black' }}
+        >
             
-            {/* Header Section: Fixed at top */}
-            <div className={`p-4 sm:p-6 pb-2 sm:pb-2 shrink-0 ${themeStyles.header}`}>
+            {/* Header Section */}
+            <div className={`p-4 sm:p-6 pb-2 sm:pb-2 ${themeStyles.header}`}>
                 <div className="text-center mb-4 sm:mb-6">
                     <h1 className={`text-xl sm:text-2xl font-bold ${themeStyles.titleColor}`}>{shopName}</h1>
                     <p className={`text-xs sm:text-sm ${themeStyles.subTitleColor}`}>Hóa Đơn Dịch Vụ</p>
@@ -221,15 +225,15 @@ const BillViewModal: React.FC<BillViewModalProps> = ({ bill, onClose, shopName, 
                         <p><span className={`font-semibold ${themeStyles.labelColor}`}>Ngày:</span> <span className={themeStyles.textColor}>{formatSpecificDateTime(bill.date)}</span></p>
                     </div>
                 </div>
-                 {/* Table Header Row (Fixed) */}
+                 {/* Table Header Row */}
                 <div className={`flex pb-2 text-xs sm:text-sm p-2 rounded-sm ${themeStyles.tableHeader}`}>
                     <div className="w-[70%]">Dịch Vụ</div>
                     <div className="w-[30%] text-right">Giá</div>
                 </div>
             </div>
 
-            {/* Scrollable Items List: Takes remaining space */}
-            <div className="px-4 sm:px-6 overflow-y-auto flex-grow print-reset-scroll custom-scrollbar">
+            {/* Items List - Flows naturally now */}
+            <div className="px-4 sm:px-6">
                 <table className="w-full text-left border-collapse">
                     <tbody className="text-xs sm:text-sm">
                         {bill.items.map((item) => (
@@ -247,8 +251,8 @@ const BillViewModal: React.FC<BillViewModalProps> = ({ bill, onClose, shopName, 
                 </table>
             </div>
 
-            {/* Footer Section: Fixed at bottom of invoice content */}
-            <div className="p-4 sm:p-6 pt-2 sm:pt-2 shrink-0">
+            {/* Footer Section */}
+            <div className="p-4 sm:p-6 pt-2 sm:pt-2">
                 <div className="border-t border-gray-200 pt-4">
                      <div className="flex justify-end">
                         <div className="w-full">
@@ -278,7 +282,7 @@ const BillViewModal: React.FC<BillViewModalProps> = ({ bill, onClose, shopName, 
         </div>
 
         {/* Action Buttons: Fixed at very bottom of modal */}
-        <div className="no-print p-4 bg-gray-50 flex justify-end space-x-3 border-t border-gray-200 shrink-0 rounded-b-lg">
+        <div className="no-print p-4 bg-gray-50 flex justify-end space-x-3 border-t border-gray-200 shrink-0 rounded-b-lg z-10">
             <button onClick={onClose} className="px-3 sm:px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-semibold text-sm sm:text-base">Đóng</button>
             <button onClick={handleDownloadImage} disabled={isDownloading} className="px-3 sm:px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold text-sm sm:text-base flex items-center gap-2">
                 <ArrowDownTrayIcon className="w-4 h-4 sm:w-5 sm:h-5" />
