@@ -175,8 +175,8 @@ const BillEditor: React.FC<BillEditorProps> = ({ bill, onSave, onCancel, service
   const inputBaseClasses = "w-full px-4 py-2 border rounded-lg transition-all duration-200 outline-none text-text-main placeholder:text-text-light bg-secondary focus:bg-surface focus:border-primary focus:ring-2 focus:ring-primary/30";
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto bg-surface p-6 sm:p-8 rounded-lg shadow-sm space-y-6">
-      <h2 className="text-2xl font-bold text-center text-text-main">{bill ? 'Chỉnh Sửa Hóa Đơn' : 'Tạo Hóa Đơn Mới'}</h2>
+    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto bg-surface p-4 sm:p-8 rounded-lg shadow-sm space-y-6">
+      <h2 className="text-xl sm:text-2xl font-bold text-center text-text-main">{bill ? 'Chỉnh Sửa Hóa Đơn' : 'Tạo Hóa Đơn Mới'}</h2>
       
       <div className="space-y-4">
         <div className="relative" onBlur={handleBlur}>
@@ -240,65 +240,107 @@ const BillEditor: React.FC<BillEditorProps> = ({ bill, onSave, onCancel, service
             const allowQuantity = serviceDef?.allowQuantity;
 
             return (
-              <div key={item.id} className="flex flex-wrap items-center gap-2">
-                <select
-                  value={item.serviceId}
-                  onChange={(e) => handleItemChange(index, e.target.value)}
-                  required
-                  className="flex-grow min-w-[150px] px-3 py-2 border border-border rounded-md focus:ring-1 focus:ring-primary focus:border-transparent bg-white text-text-main"
-                >
-                  <option value="" disabled>-- Chọn dịch vụ --</option>
-                  {services.map(service => (
-                    <option key={service.id} value={service.id}>{service.name}</option>
-                  ))}
-                </select>
-                
-                {allowQuantity && (
-                    <div className="flex items-center">
-                        <span className="text-xs text-text-light mr-1">SL:</span>
+              <div key={item.id} className="bg-secondary/30 p-3 rounded-lg border border-secondary sm:border-none sm:bg-transparent sm:p-0">
+                {/* Mobile Layout: Stacked */}
+                <div className="flex flex-col gap-2 sm:hidden">
+                    <select
+                      value={item.serviceId}
+                      onChange={(e) => handleItemChange(index, e.target.value)}
+                      required
+                      className="w-full px-3 py-2 border border-border rounded-md focus:ring-1 focus:ring-primary focus:border-transparent bg-white text-text-main"
+                    >
+                      <option value="" disabled>-- Chọn dịch vụ --</option>
+                      {services.map(service => (
+                        <option key={service.id} value={service.id}>{service.name}</option>
+                      ))}
+                    </select>
+                    
+                    <div className="flex items-center gap-2">
+                        {allowQuantity && (
+                            <div className="flex items-center w-20 shrink-0">
+                                <span className="text-xs text-text-light mr-1">SL:</span>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    value={item.quantity || 1}
+                                    onChange={(e) => handleQuantityChange(index, parseInt(e.target.value) || 1)}
+                                    className="w-full px-2 py-2 border border-border rounded-md bg-white text-center text-text-main focus:ring-1 focus:ring-primary focus:border-transparent"
+                                />
+                            </div>
+                        )}
                         <input
-                            type="number"
-                            min="1"
-                            value={item.quantity || 1}
-                            onChange={(e) => handleQuantityChange(index, parseInt(e.target.value) || 1)}
-                            className="w-16 px-2 py-2 border border-border rounded-md bg-white text-center text-text-main focus:ring-1 focus:ring-primary focus:border-transparent"
+                          type="text"
+                          readOnly
+                          value={formatCurrency(item.price)}
+                          className="flex-grow px-3 py-2 border border-border rounded-md bg-secondary text-right text-text-main font-medium"
                         />
+                        <button type="button" onClick={() => removeItem(index)} className="p-2 bg-white border border-border text-text-light hover:text-red-500 hover:bg-red-50 rounded-md transition-colors shrink-0">
+                          <TrashIcon className="w-5 h-5" />
+                        </button>
                     </div>
-                )}
+                </div>
 
-                <input
-                  type="text"
-                  readOnly
-                  value={formatCurrency(item.price)}
-                  className="w-28 px-3 py-2 border border-border rounded-md bg-secondary text-right text-text-main font-medium"
-                />
-                <button type="button" onClick={() => removeItem(index)} className="p-2 text-text-light hover:text-red-500 hover:bg-red-50 rounded-full transition-colors">
-                  <TrashIcon className="w-5 h-5" />
-                </button>
+                {/* Desktop Layout: Row */}
+                <div className="hidden sm:flex sm:flex-wrap sm:items-center sm:gap-2">
+                    <select
+                      value={item.serviceId}
+                      onChange={(e) => handleItemChange(index, e.target.value)}
+                      required
+                      className="flex-grow min-w-[150px] px-3 py-2 border border-border rounded-md focus:ring-1 focus:ring-primary focus:border-transparent bg-white text-text-main"
+                    >
+                      <option value="" disabled>-- Chọn dịch vụ --</option>
+                      {services.map(service => (
+                        <option key={service.id} value={service.id}>{service.name}</option>
+                      ))}
+                    </select>
+                    
+                    {allowQuantity && (
+                        <div className="flex items-center">
+                            <span className="text-xs text-text-light mr-1">SL:</span>
+                            <input
+                                type="number"
+                                min="1"
+                                value={item.quantity || 1}
+                                onChange={(e) => handleQuantityChange(index, parseInt(e.target.value) || 1)}
+                                className="w-16 px-2 py-2 border border-border rounded-md bg-white text-center text-text-main focus:ring-1 focus:ring-primary focus:border-transparent"
+                            />
+                        </div>
+                    )}
+
+                    <input
+                      type="text"
+                      readOnly
+                      value={formatCurrency(item.price)}
+                      className="w-28 px-3 py-2 border border-border rounded-md bg-secondary text-right text-text-main font-medium"
+                    />
+                    <button type="button" onClick={() => removeItem(index)} className="p-2 text-text-light hover:text-red-500 hover:bg-red-50 rounded-full transition-colors">
+                      <TrashIcon className="w-5 h-5" />
+                    </button>
+                </div>
               </div>
             );
         })}
-        <button type="button" onClick={addItem} className="w-full mt-2 px-4 py-2 text-primary border-2 border-dashed border-primary/50 rounded-lg hover:bg-primary/5 transition-colors">
+        <button type="button" onClick={addItem} className="w-full mt-2 px-4 py-3 sm:py-2 text-primary border-2 border-dashed border-primary/50 rounded-lg hover:bg-primary/5 transition-colors font-medium">
           + Thêm Dịch Vụ
         </button>
       </div>
 
       {/* Discount Section */}
       <div className="pt-4 border-t border-border">
-          <div className="flex justify-end items-center gap-2 mb-2">
+          <div className="flex flex-col sm:flex-row justify-end items-end sm:items-center gap-2 mb-2">
             <label className="text-sm font-medium text-text-main">Giảm giá:</label>
-            <div className="flex rounded-md shadow-sm">
+            <div className="flex rounded-md shadow-sm w-full sm:w-auto">
                 <input
                     type="number"
                     min="0"
                     value={discountValue}
                     onChange={(e) => setDiscountValue(Math.max(0, parseFloat(e.target.value) || 0))}
-                    className="w-24 px-3 py-1 border border-border rounded-l-md focus:ring-1 focus:ring-primary focus:border-primary outline-none text-right bg-white text-text-main"
+                    className="flex-grow sm:flex-grow-0 w-full sm:w-24 px-3 py-2 sm:py-1 border border-border rounded-l-md focus:ring-1 focus:ring-primary focus:border-primary outline-none text-right bg-white text-text-main"
                 />
                 <select
                     value={discountType}
                     onChange={(e) => setDiscountType(e.target.value as 'percent' | 'amount')}
-                    className="px-2 py-1 border-t border-b border-r border-border rounded-r-md bg-secondary focus:ring-1 focus:ring-primary outline-none text-sm"
+                    className="px-3 sm:px-2 py-2 sm:py-1 border-t border-b border-r border-border rounded-r-md bg-secondary focus:ring-1 focus:ring-primary outline-none text-sm"
                 >
                     <option value="amount">VNĐ</option>
                     <option value="percent">%</option>
@@ -315,14 +357,14 @@ const BillEditor: React.FC<BillEditorProps> = ({ bill, onSave, onCancel, service
              )}
           </div>
           
-          <div className="text-right text-2xl font-bold text-text-main mt-2">
+          <div className="text-right text-xl sm:text-2xl font-bold text-text-main mt-2">
             Tổng cộng: {formatCurrency(calculateTotal())}
           </div>
       </div>
 
-      <div className="flex justify-end space-x-4">
-        <button type="button" onClick={onCancel} className="px-6 py-2 bg-secondary text-text-main rounded-lg hover:bg-secondary/80 transition-colors font-semibold">Hủy</button>
-        <button type="submit" className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors shadow-sm font-semibold">Lưu Hóa Đơn</button>
+      <div className="flex justify-end space-x-3 sm:space-x-4 pt-2">
+        <button type="button" onClick={onCancel} className="flex-1 sm:flex-none px-4 sm:px-6 py-3 sm:py-2 bg-secondary text-text-main rounded-lg hover:bg-secondary/80 transition-colors font-semibold">Hủy</button>
+        <button type="submit" className="flex-1 sm:flex-none px-4 sm:px-6 py-3 sm:py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors shadow-sm font-semibold">Lưu Hóa Đơn</button>
       </div>
     </form>
   );
