@@ -67,39 +67,39 @@ const CustomerList: React.FC<CustomerListProps> = ({ bills }) => {
     return (
         <div className="space-y-6 pb-10">
             <div>
-                <h2 className="text-2xl font-bold text-text-main">Khách Hàng Thân Thiết</h2>
+                <h2 className="text-2xl font-bold text-text-main">Khách Hàng</h2>
                 <p className="text-text-light mt-1">Bảng xếp hạng khách hàng dựa trên tổng chi tiêu.</p>
             </div>
 
             {customerStats.length > 0 ? (
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                     {customerStats.map((stat, index) => (
                         <button 
                             key={stat.name} 
                             onClick={() => setSelectedCustomer(stat)}
-                            className="w-full text-left bg-surface p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex items-center space-x-4 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50"
+                            className="w-full text-left bg-surface p-3 sm:p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex items-center space-x-3 sm:space-x-4 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50"
                         >
-                             <div className="w-10 h-10 flex items-center justify-center">
-                                {index === 0 ? <GoldMedalIcon className="w-10 h-10" /> :
-                                 index === 1 ? <SilverMedalIcon className="w-10 h-10" /> :
-                                 index === 2 ? <BronzeMedalIcon className="w-10 h-10" /> :
-                                 <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${getRankColor(index)}`}>
+                             <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center shrink-0">
+                                {index === 0 ? <GoldMedalIcon className="w-8 h-8 sm:w-10 sm:h-10" /> :
+                                 index === 1 ? <SilverMedalIcon className="w-8 h-8 sm:w-10 sm:h-10" /> :
+                                 index === 2 ? <BronzeMedalIcon className="w-8 h-8 sm:w-10 sm:h-10" /> :
+                                 <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-sm sm:text-lg ${getRankColor(index)}`}>
                                      {index + 1}
                                  </div>
                                 }
                             </div>
-                            <div className="flex-grow">
-                                <h3 className="text-lg font-semibold text-text-main">{stat.name}</h3>
-                                <p className="text-sm text-text-light">
+                            <div className="flex-grow min-w-0">
+                                <h3 className="text-base sm:text-lg font-semibold text-text-main truncate">{stat.name}</h3>
+                                <p className="text-xs sm:text-sm text-text-light">
                                     {stat.visitCount} lần ghé thăm
                                 </p>
-                                <p className="text-xs text-text-light mt-1">
+                                <p className="text-[10px] sm:text-xs text-text-light mt-0.5 sm:mt-1 truncate">
                                     Ghé gần nhất: {formatDateTime(stat.lastVisitDate).split(',')[0]}
                                 </p>
                             </div>
-                            <div className="text-right">
-                                <p className="text-lg font-bold text-primary">{formatCurrency(stat.totalSpent)}</p>
-                                <p className="text-xs text-text-light">Tổng chi tiêu</p>
+                            <div className="text-right shrink-0">
+                                <p className="text-base sm:text-lg font-bold text-primary">{formatCurrency(stat.totalSpent)}</p>
+                                <p className="text-[10px] sm:text-xs text-text-light">Tổng chi tiêu</p>
                             </div>
                         </button>
                     ))}
