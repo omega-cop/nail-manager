@@ -83,18 +83,18 @@ const RevenueCalendar: React.FC<RevenueCalendarProps> = ({ bills, onBack, onSele
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
        <div className="flex items-center">
         <button onClick={onBack} className="flex items-center gap-2 text-text-light hover:text-text-main transition-colors">
             <ArrowLeftIcon className="w-5 h-5" />
-            <span className="font-semibold">Quay Lại</span>
+            <span className="font-semibold text-sm sm:text-base">Quay Lại</span>
         </button>
       </div>
 
       <div className="bg-surface p-4 sm:p-6 rounded-lg shadow-sm">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="order-2 sm:order-1 text-center sm:text-left">
-                  <h3 className="text-sm font-medium text-text-light">Tổng Doanh Thu Tháng</h3>
+                  <h3 className="text-xs sm:text-sm font-medium text-text-light">Tổng Doanh Thu Tháng</h3>
                   <p className="text-2xl sm:text-3xl font-bold text-primary">{formatCurrency(totalMonthRevenue)}</p>
               </div>
 
@@ -103,7 +103,7 @@ const RevenueCalendar: React.FC<RevenueCalendarProps> = ({ bills, onBack, onSele
                       <ChevronLeftIcon className="w-5 h-5 text-text-light"/>
                   </button>
                   
-                  <div className="flex flex-col sm:flex-row items-center gap-0 sm:gap-1 font-semibold text-lg text-text-main">
+                  <div className="flex flex-col sm:flex-row items-center gap-0 sm:gap-1 font-semibold text-base sm:text-lg text-text-main">
                       <select
                           value={month}
                           onChange={(e) => handleSetDate(parseInt(e.target.value), year)}
@@ -132,7 +132,7 @@ const RevenueCalendar: React.FC<RevenueCalendarProps> = ({ bills, onBack, onSele
       <div className="bg-surface rounded-lg shadow-sm overflow-hidden">
         <div className="grid grid-cols-7 border-b border-secondary/20">
           {DAY_NAMES.map(day => (
-            <div key={day} className="text-center p-3 font-semibold text-text-light text-sm">{day}</div>
+            <div key={day} className="text-center p-2 sm:p-3 font-semibold text-text-light text-xs sm:text-sm">{day}</div>
           ))}
         </div>
         <div className="grid grid-cols-7">
@@ -140,7 +140,7 @@ const RevenueCalendar: React.FC<RevenueCalendarProps> = ({ bills, onBack, onSele
             const isLastCol = (index + 1) % 7 === 0;
 
             if (!cell) {
-              return <div key={`empty-${index}`} className={`border-b border-secondary/20 min-h-[100px] sm:min-h-[128px] ${!isLastCol ? 'border-r border-secondary/20' : ''}`}></div>;
+              return <div key={`empty-${index}`} className={`border-b border-secondary/20 min-h-[80px] sm:min-h-[128px] ${!isLastCol ? 'border-r border-secondary/20' : ''}`}></div>;
             }
             
             const isToday = isCurrentMonth && cell.day === today.getDate();
@@ -151,16 +151,16 @@ const RevenueCalendar: React.FC<RevenueCalendarProps> = ({ bills, onBack, onSele
               <button
                 key={cell.day}
                 onClick={() => onSelectDate(dateString)}
-                className={`p-2 min-h-[100px] sm:min-h-[128px] flex flex-col justify-between text-left border-b border-secondary/20
+                className={`p-1 sm:p-2 min-h-[80px] sm:min-h-[128px] flex flex-col justify-between text-left border-b border-secondary/20
                   ${!isLastCol ? 'border-r border-secondary/20' : ''}
                   ${hasRevenue ? 'bg-primary/5 hover:bg-primary/10' : 'hover:bg-secondary/30'}
                   relative transition-colors cursor-pointer group outline-none focus:ring-1 focus:ring-inset focus:ring-primary/50`}
               >
-                <span className={`text-sm font-semibold ${isToday ? 'bg-primary text-white rounded-full w-7 h-7 flex items-center justify-center' : 'text-text-main group-hover:text-primary transition-colors'}`}>
+                <span className={`text-xs sm:text-sm font-semibold ${isToday ? 'bg-primary text-white rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center' : 'text-text-main group-hover:text-primary transition-colors'}`}>
                   {cell.day}
                 </span>
                 {hasRevenue && (
-                  <span className="text-right font-bold text-xs sm:text-sm text-primary break-words">
+                  <span className="text-right font-bold text-[10px] sm:text-sm text-primary break-words leading-tight">
                     {formatCurrency(cell.revenue)}
                   </span>
                 )}
