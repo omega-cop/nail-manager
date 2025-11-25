@@ -65,13 +65,13 @@ const ServiceManager: React.FC<ServiceManagerProps> = ({ services, addService, u
     <div className="space-y-6 pb-10">
       <div className="flex justify-between items-center">
         <div>
-            <h2 className="text-2xl font-bold text-text-main">Quản Lý Dịch Vụ</h2>
-            <p className="text-text-light mt-1">Thêm, sửa đổi hoặc xóa các dịch vụ trong menu của bạn.</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-text-main">Quản Lý Dịch Vụ</h2>
+            <p className="text-text-light mt-1 text-sm sm:text-base">Thêm, sửa đổi hoặc xóa các dịch vụ.</p>
         </div>
         {!isFormVisible && (
             <button
             onClick={handleCreate}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg shadow-sm hover:bg-primary-hover transition-colors font-semibold"
+            className="flex items-center gap-2 px-3 py-2 sm:px-4 bg-primary text-white rounded-lg shadow-sm hover:bg-primary-hover transition-colors font-semibold text-sm sm:text-base"
             >
             <PlusIcon className="w-5 h-5" />
             <span className="hidden sm:inline">Thêm Mới</span>
@@ -80,7 +80,7 @@ const ServiceManager: React.FC<ServiceManagerProps> = ({ services, addService, u
       </div>
 
       {isFormVisible && (
-        <form onSubmit={handleSubmit} className="p-6 bg-surface rounded-lg shadow-sm space-y-4 mb-6">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 bg-surface rounded-lg shadow-sm space-y-4 mb-6">
           <h3 className="text-lg font-semibold text-text-main">{editingService ? 'Chỉnh Sửa Dịch Vụ' : 'Thêm Dịch Vụ Mới'}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -113,13 +113,15 @@ const ServiceManager: React.FC<ServiceManagerProps> = ({ services, addService, u
           
           <div className="py-2">
             <label className="relative inline-flex items-center cursor-pointer group">
-              <input 
-                type="checkbox" 
-                checked={allowQuantity} 
-                onChange={(e) => setAllowQuantity(e.target.checked)} 
-                className="sr-only peer" 
-              />
-              <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary shrink-0"></div>
+              <div className="relative">
+                <input 
+                    type="checkbox" 
+                    checked={allowQuantity} 
+                    onChange={(e) => setAllowQuantity(e.target.checked)} 
+                    className="sr-only peer" 
+                />
+                <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary shrink-0"></div>
+              </div>
               <div className="ml-3 flex flex-col">
                   <span className="text-sm font-medium text-text-main group-hover:text-primary transition-colors">Cho phép nhập số lượng</span>
                   <span className="text-xs text-text-light mt-0.5">(Dùng cho các dịch vụ tính theo ngón, viên, cái...)</span>
@@ -137,15 +139,15 @@ const ServiceManager: React.FC<ServiceManagerProps> = ({ services, addService, u
       {/* Mobile View: Card List */}
       <div className="md:hidden space-y-3">
         {sortedServices.map(service => (
-            <div key={service.id} className="bg-surface p-4 rounded-lg shadow-sm flex justify-between items-center">
-                <div>
-                    <p className="font-medium text-text-main">{service.name}</p>
-                    <div className="flex items-center gap-2">
-                        <p className="text-primary">{formatCurrency(service.price)}</p>
-                        {service.allowQuantity && <span className="text-xs px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-full font-medium">Đa số lượng</span>}
+            <div key={service.id} className="bg-surface p-4 rounded-lg shadow-sm flex justify-between items-start gap-2">
+                <div className="min-w-0">
+                    <p className="font-medium text-text-main break-words">{service.name}</p>
+                    <div className="flex flex-wrap items-center gap-2 mt-1">
+                        <p className="text-primary font-semibold">{formatCurrency(service.price)}</p>
+                        {service.allowQuantity && <span className="text-[10px] px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-full font-medium whitespace-nowrap">Đa số lượng</span>}
                     </div>
                 </div>
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center space-x-1 shrink-0">
                     <button onClick={() => handleEdit(service)} className="p-2 text-text-light hover:text-primary transition-colors rounded-full hover:bg-secondary">
                         <PencilIcon className="w-5 h-5" />
                     </button>
