@@ -218,12 +218,12 @@ const App: React.FC = () => {
   const NavItem: React.FC<{ view: View; label: string; icon: React.ReactNode }> = ({ view, label, icon }) => (
     <button
       onClick={() => setCurrentView(view)}
-      className={`flex flex-col items-center justify-center w-full p-2 rounded-lg transition-colors duration-200 ${
+      className={`flex flex-col items-center justify-center w-full p-1.5 rounded-lg transition-colors duration-200 ${
         currentView === view ? 'text-primary' : 'text-text-light hover:text-primary'
       }`}
     >
       {icon}
-      <span className="text-xs mt-1 font-medium">{label}</span>
+      <span className="text-[10px] mt-1 font-medium">{label}</span>
     </button>
   );
 
@@ -307,15 +307,15 @@ const App: React.FC = () => {
         </div>
       )}
 
-      <header className="px-4 sm:px-6 py-4 bg-surface sticky top-0 z-10 shadow-sm">
+      <header className="px-4 sm:px-6 py-3 sm:py-4 bg-surface sticky top-0 z-10 shadow-sm">
         <div className="flex justify-between items-center max-w-7xl mx-auto">
             <button 
                 onClick={openShopNameEditor}
-                className="group flex items-center gap-2 text-xl font-bold text-text-main hover:text-primary transition-colors focus:outline-none"
+                className="group flex items-center gap-2 text-lg sm:text-xl font-bold text-text-main hover:text-primary transition-colors focus:outline-none truncate max-w-[200px]"
                 title="Nhấp để đổi tên"
             >
-              <span>{shopName}</span>
-              <PencilIcon className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity text-primary" />
+              <span className="truncate">{shopName}</span>
+              <PencilIcon className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity text-primary shrink-0" />
             </button>
             
             <div className="flex items-center gap-4">
@@ -372,7 +372,7 @@ const App: React.FC = () => {
         </div>
       </header>
       
-      <main className="flex-grow p-4 sm:p-6 pb-24">
+      <main className="flex-grow p-3 sm:p-6 pb-24">
         <div className="max-w-7xl mx-auto">
          {renderView()}
         </div>
