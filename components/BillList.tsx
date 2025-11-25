@@ -19,7 +19,7 @@ interface BillListProps {
 const PAGE_SIZE = 20;
 
 const BillSkeleton = () => (
-    <div className="bg-surface p-5 rounded-lg shadow-sm border border-transparent animate-pulse">
+    <div className="bg-surface p-4 sm:p-5 rounded-lg shadow-sm border border-transparent animate-pulse">
         <div className="flex justify-between items-start">
             <div className="space-y-3 w-1/2">
                 <div className="h-5 bg-secondary rounded w-3/4"></div>
@@ -28,9 +28,9 @@ const BillSkeleton = () => (
             <div className="h-6 bg-secondary rounded w-1/4"></div>
         </div>
         <div className="mt-4 pt-4 flex justify-end space-x-2">
-            <div className="h-9 w-9 bg-secondary rounded-full"></div>
-            <div className="h-9 w-9 bg-secondary rounded-full"></div>
-            <div className="h-9 w-9 bg-secondary rounded-full"></div>
+            <div className="h-8 w-8 sm:h-9 sm:w-9 bg-secondary rounded-full"></div>
+            <div className="h-8 w-8 sm:h-9 sm:w-9 bg-secondary rounded-full"></div>
+            <div className="h-8 w-8 sm:h-9 sm:w-9 bg-secondary rounded-full"></div>
         </div>
     </div>
 );
@@ -126,30 +126,30 @@ const BillList: React.FC<BillListProps> = ({ bills, onEdit, onDelete, onAddNew, 
     <div className="space-y-6 pb-[40px]">
        <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-text-main">Danh Sách Hóa Đơn</h2>
-          <p className="text-text-light mt-1">Tìm kiếm và quản lý tất cả hóa đơn của bạn.</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-text-main">Danh Sách Hóa Đơn</h2>
+          <p className="text-text-light mt-1 text-sm sm:text-base">Tìm kiếm và quản lý tất cả hóa đơn.</p>
         </div>
         <button
             onClick={onAddNew}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg shadow-sm hover:bg-primary-hover transition-colors font-semibold"
+            className="flex items-center gap-2 px-3 py-2 sm:px-4 bg-primary text-white rounded-lg shadow-sm hover:bg-primary-hover transition-colors font-semibold text-sm sm:text-base"
             >
             <PlusIcon className="w-5 h-5" />
             <span className="hidden sm:inline">Thêm Mới</span>
         </button>
       </div>
       
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
         {/* Search Bar */}
         <div className="relative group flex-grow">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
             <MagnifyingGlassIcon className="w-5 h-5 text-text-light group-focus-within:text-primary transition-colors" />
             </div>
             <input
                 type="text"
-                placeholder="Tìm kiếm theo tên khách hàng..."
+                placeholder="Tìm kiếm tên khách..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 border border-gray-100 rounded-xl outline-none text-text-main placeholder:text-text-light bg-surface shadow-md focus:shadow-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300"
+                className="w-full pl-10 sm:pl-11 pr-4 py-3 border border-gray-100 rounded-xl outline-none text-text-main placeholder:text-text-light bg-surface shadow-md focus:shadow-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 text-sm sm:text-base"
             />
         </div>
         
@@ -165,7 +165,7 @@ const BillList: React.FC<BillListProps> = ({ bills, onEdit, onDelete, onAddNew, 
                         e.target.type = 'text';
                     }
                 }}
-                className="w-full px-4 py-3 border border-gray-100 rounded-xl outline-none text-text-main bg-surface shadow-md focus:shadow-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 [color-scheme:light] placeholder:text-text-light"
+                className="w-full px-4 py-3 border border-gray-100 rounded-xl outline-none text-text-main bg-surface shadow-md focus:shadow-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 [color-scheme:light] placeholder:text-text-light text-sm sm:text-base"
                 placeholder="Chọn ngày"
             />
         </div>
@@ -179,17 +179,17 @@ const BillList: React.FC<BillListProps> = ({ bills, onEdit, onDelete, onAddNew, 
               <div className="relative flex justify-center mb-4">
                 <span className="bg-secondary/50 px-3 py-1 rounded-full text-xs font-semibold text-text-light">{category}</span>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {groupedBills[category].map(bill => (
-                  <div key={bill.id} className="bg-surface p-5 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="text-lg font-semibold text-text-main">{bill.customerName}</h3>
-                        <p className="text-sm text-text-light">{formatDateTime(bill.date)}</p>
+                  <div key={bill.id} className="bg-surface p-4 sm:p-5 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="min-w-0">
+                        <h3 className="text-base sm:text-lg font-semibold text-text-main truncate">{bill.customerName}</h3>
+                        <p className="text-xs sm:text-sm text-text-light">{formatDateTime(bill.date)}</p>
                       </div>
-                      <p className="text-lg font-bold text-primary">{formatCurrency(bill.total)}</p>
+                      <p className="text-base sm:text-lg font-bold text-primary whitespace-nowrap">{formatCurrency(bill.total)}</p>
                     </div>
-                    <div className="mt-4 pt-4 flex justify-end space-x-2">
+                    <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 flex justify-end space-x-1 sm:space-x-2 border-t border-secondary/50 sm:border-none">
                       <button onClick={() => setViewingBill(bill)} className="p-2 text-text-light hover:text-primary transition-colors rounded-full hover:bg-secondary">
                         <EyeIcon className="w-5 h-5" />
                       </button>
