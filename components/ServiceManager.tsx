@@ -111,18 +111,20 @@ const ServiceManager: React.FC<ServiceManagerProps> = ({ services, addService, u
             </div>
           </div>
           
-          <div className="flex items-center space-x-3 py-2">
-            <label className="relative inline-flex items-center cursor-pointer">
+          <div className="py-2">
+            <label className="relative inline-flex items-center cursor-pointer group">
               <input 
                 type="checkbox" 
                 checked={allowQuantity} 
                 onChange={(e) => setAllowQuantity(e.target.checked)} 
                 className="sr-only peer" 
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-              <span className="ml-3 text-sm font-medium text-text-main">Cho phép nhập số lượng</span>
+              <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary shrink-0"></div>
+              <div className="ml-3 flex flex-col">
+                  <span className="text-sm font-medium text-text-main group-hover:text-primary transition-colors">Cho phép nhập số lượng</span>
+                  <span className="text-xs text-text-light mt-0.5">(Dùng cho các dịch vụ tính theo ngón, viên, cái...)</span>
+              </div>
             </label>
-            <span className="text-xs text-text-light">(Dùng cho các dịch vụ tính theo ngón, viên, cái...)</span>
           </div>
 
           <div className="flex justify-end space-x-3 pt-2">
