@@ -167,13 +167,21 @@ const BillList: React.FC<BillListProps> = ({ bills, onEdit, onDelete, onAddNew, 
                 type={filterDate ? "date" : "text"}
                 value={filterDate}
                 onChange={handleDateChange}
-                onFocus={(e) => e.target.type = 'date'}
+                onFocus={(e) => {
+                    e.target.type = 'date';
+                    e.target.showPicker?.();
+                }}
                 onBlur={(e) => {
                     if (!e.target.value) {
                         e.target.type = 'text';
                     }
                 }}
-                className="w-full pl-10 sm:pl-11 pr-10 py-3 border border-gray-100 rounded-xl outline-none text-text-main bg-surface shadow-md focus:shadow-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 [color-scheme:light] placeholder:text-text-light text-sm sm:text-base [&::-webkit-calendar-picker-indicator]:bg-transparent [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0"
+                onClick={(e) => {
+                    e.currentTarget.type = 'date';
+                    e.currentTarget.showPicker?.();
+                }}
+                onKeyDown={(e) => e.preventDefault()}
+                className="w-full pl-10 sm:pl-11 pr-10 py-3 border border-gray-100 rounded-xl outline-none text-text-main bg-surface shadow-md focus:shadow-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 [color-scheme:light] placeholder:text-text-light text-sm sm:text-base cursor-pointer caret-transparent"
                 placeholder="Chọn ngày"
             />
             {filterDate && (
