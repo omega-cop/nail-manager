@@ -280,7 +280,7 @@ const BillViewModal: React.FC<BillViewModalProps> = ({ bill, onClose, shopName, 
                     </div>
                 </div>
                 <div className={`text-center mt-6 text-xs ${themeStyles.footerText}`}>
-                    <p>Cảm ơn quý khách đã sử dụng dịch vụ của chúng tôi!</p>
+                    <p>Cảm ơn quý khách đã sử dụng dịch vụ</p>
                 </div>
             </div>
         </div>
