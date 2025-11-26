@@ -1,15 +1,30 @@
 
-export interface PredefinedService {
+export interface ServiceCategory {
+  id: string;
+  name: string;
+}
+
+export interface PriceVariant {
   id: string;
   name: string;
   price: number;
+}
+
+export interface PredefinedService {
+  id: string;
+  name: string;
+  price: number; // Base price or default price
+  priceType?: 'fixed' | 'variable';
+  variants?: PriceVariant[];
   allowQuantity?: boolean;
+  categoryId?: string;
 }
 
 export interface ServiceItem {
   id:string;
   serviceId: string; // ID from PredefinedService
   name: string;
+  variantName?: string; // Name of the selected variant
   price: number;
   quantity: number;
 }

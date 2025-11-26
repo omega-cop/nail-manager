@@ -1,3 +1,4 @@
+
 import React, { useRef, useState } from 'react';
 import type { Bill } from '../types';
 import { formatCurrency, formatSpecificDateTime } from '../utils/dateUtils';
@@ -200,7 +201,8 @@ const BillViewModal: React.FC<BillViewModalProps> = ({ bill, onClose, shopName, 
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 p-4" onClick={onClose}>
-      <div className="bg-white rounded-lg shadow-2xl w-full max-w-md flex flex-col max-h-[85dvh] sm:max-h-[85vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+      {/* Added max-h-[calc(100dvh-5rem)] to prevent overlap with bottom menu (approx 80px) */}
+      <div className="bg-white rounded-lg shadow-2xl w-full max-w-md flex flex-col max-h-[calc(100dvh-5rem)] overflow-hidden" onClick={(e) => e.stopPropagation()}>
         
         {/* Main Printable Area Wrapper - Now scrollable as a whole */}
         <div 
@@ -210,40 +212,43 @@ const BillViewModal: React.FC<BillViewModalProps> = ({ bill, onClose, shopName, 
         >
             
             {/* Header Section */}
-            <div className={`p-4 sm:p-6 pb-2 sm:pb-2 ${themeStyles.header}`}>
-                <div className="text-center mb-4 sm:mb-6">
-                    <h1 className={`text-xl sm:text-2xl font-bold ${themeStyles.titleColor}`}>{shopName}</h1>
-                    <p className={`text-xs sm:text-sm ${themeStyles.subTitleColor}`}>Hóa Đơn Dịch Vụ</p>
+            <div className={`p-6 pb-2 ${themeStyles.header}`}>
+                <div className="text-center mb-6">
+                    <h1 className={`text-2xl font-bold ${themeStyles.titleColor}`}>{shopName}</h1>
+                    <p className={`text-sm ${themeStyles.subTitleColor}`}>Hóa Đơn Dịch Vụ</p>
                 </div>
                 <div className={`flex justify-between items-end mb-4 pb-4 ${themeStyles.header.includes('border') ? '' : 'border-b border-gray-200'}`}>
                     <div>
-                        <p className={`font-semibold text-sm sm:text-base ${themeStyles.labelColor}`}>Khách hàng:</p>
-                        <p className={`text-base sm:text-lg font-bold ${themeStyles.textColor}`}>{bill.customerName}</p>
+                        <p className={`font-semibold text-base ${themeStyles.labelColor}`}>Khách hàng:</p>
+                        <p className={`text-lg font-bold ${themeStyles.textColor}`}>{bill.customerName}</p>
                     </div>
-                    <div className="text-right text-xs sm:text-sm">
+                    <div className="text-right text-sm">
                         <p><span className={`font-semibold ${themeStyles.labelColor}`}>Ngày:</span> <span className={themeStyles.textColor}>{formatSpecificDateTime(bill.date)}</span></p>
                     </div>
                 </div>
                  {/* Table Header Row */}
-                <div className={`flex pb-2 text-xs sm:text-sm p-2 rounded-sm ${themeStyles.tableHeader}`}>
+                <div className={`flex pb-2 text-sm p-2 rounded-sm ${themeStyles.tableHeader}`}>
                     <div className="w-[70%]">Dịch Vụ</div>
                     <div className="w-[30%] text-right">Giá</div>
                 </div>
             </div>
 
             {/* Items List - Flows naturally now */}
-            <div className="px-4 sm:px-6">
+            <div className="px-6">
                 <table className="w-full text-left border-collapse">
-                    <tbody className="text-xs sm:text-sm">
+                    <tbody className="text-sm">
                         {bill.items.map((item) => (
                             <tr key={item.id} className={`border-b last:border-0 ${themeStyles.tableRowBorder}`}>
-                                <td className={`py-2 sm:py-3 align-top w-[70%] ${themeStyles.textColor}`}>
-                                    {item.name}
+                                <td className={`py-3 align-top w-[70%] ${themeStyles.textColor}`}>
+                                    <span className="block">{item.name}</span>
+                                    {item.variantName && (
+                                        <span className="block text-xs italic opacity-75">{item.variantName}</span>
+                                    )}
                                     {item.quantity && item.quantity > 1 && (
                                         <span className={`font-semibold ml-1 ${themeStyles.labelColor}`}>(x{item.quantity})</span>
                                     )}
                                 </td>
-                                <td className={`py-2 sm:py-3 text-right align-top w-[30%] ${themeStyles.textColor}`}>{formatCurrency(item.price)}</td>
+                                <td className={`py-3 text-right align-top w-[30%] ${themeStyles.textColor}`}>{formatCurrency(item.price)}</td>
                             </tr>
                         ))}
                     </tbody>
@@ -251,44 +256,44 @@ const BillViewModal: React.FC<BillViewModalProps> = ({ bill, onClose, shopName, 
             </div>
 
             {/* Footer Section */}
-            <div className="p-4 sm:p-6 pt-2 sm:pt-2">
+            <div className="p-6 pt-2">
                 <div className="border-t border-gray-200 pt-4">
                      <div className="flex justify-end">
                         <div className="w-full">
                             {hasDiscount && (
                                 <>
-                                    <div className="flex justify-between text-sm sm:text-base mb-1 px-3 sm:px-4">
+                                    <div className="flex justify-between text-base mb-1 px-4">
                                         <span className={themeStyles.labelColor}>Tạm tính</span>
                                         <span className={themeStyles.textColor}>{formatCurrency(subTotal)}</span>
                                     </div>
-                                    <div className="flex justify-between text-sm sm:text-base mb-2 px-3 sm:px-4">
+                                    <div className="flex justify-between text-base mb-2 px-4">
                                         <span className={themeStyles.labelColor}>Giảm giá {bill.discountType === 'percent' ? `(${bill.discountValue}%)` : ''}</span>
                                         <span className="text-red-500 font-semibold">-{formatCurrency(discountAmount)}</span>
                                     </div>
                                 </>
                             )}
-                            <div className={`flex justify-between font-bold text-lg sm:text-xl p-3 sm:p-4 rounded-lg ${themeStyles.totalBg}`}>
+                            <div className={`flex justify-between font-bold text-xl p-4 rounded-lg ${themeStyles.totalBg}`}>
                                 <span>Tổng Cộng</span>
                                 <span>{formatCurrency(bill.total)}</span>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div className={`text-center mt-4 sm:mt-6 text-[10px] sm:text-xs ${themeStyles.footerText}`}>
+                <div className={`text-center mt-6 text-xs ${themeStyles.footerText}`}>
                     <p>Cảm ơn quý khách đã sử dụng dịch vụ của chúng tôi!</p>
                 </div>
             </div>
         </div>
 
         {/* Action Buttons: Fixed at very bottom of modal */}
-        <div className="no-print p-4 bg-gray-50 flex justify-end space-x-3 border-t border-gray-200 shrink-0 z-10">
-            <button onClick={onClose} className="px-3 sm:px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-semibold text-sm sm:text-base">Đóng</button>
-            <button onClick={handleDownloadImage} disabled={isDownloading} className="px-3 sm:px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold text-sm sm:text-base flex items-center gap-2">
-                <ArrowDownTrayIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+        <div className="no-print p-6 bg-gray-50 flex justify-end space-x-3 border-t border-gray-200 shrink-0 z-10">
+            <button onClick={onClose} className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-semibold text-base">Đóng</button>
+            <button onClick={handleDownloadImage} disabled={isDownloading} className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold text-base flex items-center gap-2">
+                <ArrowDownTrayIcon className="w-5 h-5" />
                 <span className="hidden sm:inline">{isDownloading ? 'Đang tải...' : 'Tải Ảnh'}</span>
                 <span className="sm:hidden">{isDownloading ? '...' : 'Ảnh'}</span>
             </button>
-            <button onClick={handlePrint} className="px-3 sm:px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold text-sm sm:text-base">In</button>
+            <button onClick={handlePrint} className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold text-base">In</button>
         </div>
       </div>
     </div>

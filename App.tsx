@@ -14,7 +14,10 @@ import { ListBulletIcon, TagIcon, HomeIcon, UsersIcon, CloudArrowDownIcon, Cloud
 
 const App: React.FC = () => {
   const { bills, addBill, updateBill, deleteBill, restoreBills } = useBills();
-  const { services, addService, updateService, deleteService, restoreServices } = useServices();
+  const { 
+      services, addService, updateService, deleteService, restoreServices,
+      categories, addCategory, updateCategory, deleteCategory, restoreCategories
+  } = useServices();
   const { shopName, updateShopName, billTheme, updateBillTheme } = useShopSettings();
   
   const [currentView, setCurrentView] = useState<View>('dashboard');
@@ -51,11 +54,13 @@ const App: React.FC = () => {
     try {
       const billsData = localStorage.getItem('nailSpaBills') || '[]';
       const servicesData = localStorage.getItem('nailSpaServices') || '[]';
+      const categoriesData = localStorage.getItem('nailSpaCategories') || '[]';
       const settingsData = localStorage.getItem('nailSpaShopSettings') || '{"shopName": "Nail Spa"}';
       
       const backupData = {
         bills: JSON.parse(billsData),
         services: JSON.parse(servicesData),
+        categories: JSON.parse(categoriesData),
         settings: JSON.parse(settingsData)
       };
 
@@ -95,6 +100,9 @@ const App: React.FC = () => {
           if (window.confirm('Thao tác này sẽ ghi đè lên toàn bộ dữ liệu hiện tại. Bạn có chắc chắn muốn tiếp tục không?')) {
             restoreBills(data.bills);
             restoreServices(data.services);
+            if (data.categories && Array.isArray(data.categories)) {
+                restoreCategories(data.categories);
+            }
             if (data.settings) {
                 if (data.settings.shopName) updateShopName(data.settings.shopName);
                 if (data.settings.billTheme) updateBillTheme(data.settings.billTheme);
@@ -194,9 +202,18 @@ const App: React.FC = () => {
       case 'dashboard':
         return <Dashboard bills={bills} onViewRevenueHistory={handleViewRevenueHistory} />;
       case 'editor':
-        return <BillEditor bill={selectedBill} onSave={handleSaveBill} onCancel={handleCancel} services={services} customerNames={customerNames} />;
+        return <BillEditor bill={selectedBill} onSave={handleSaveBill} onCancel={handleCancel} services={services} customerNames={customerNames} categories={categories} />;
       case 'services':
-        return <ServiceManager services={services} addService={addService} updateService={updateService} deleteService={deleteService} />;
+        return <ServiceManager 
+            services={services} 
+            addService={addService} 
+            updateService={updateService} 
+            deleteService={deleteService}
+            categories={categories}
+            addCategory={addCategory}
+            updateCategory={updateCategory}
+            deleteCategory={deleteCategory}
+        />;
       case 'customers':
         return <CustomerList bills={bills} />;
       case 'revenue-calendar':

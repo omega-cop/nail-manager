@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import type { Bill } from '../types';
-import { PencilIcon, TrashIcon, EyeIcon, PlusIcon, MagnifyingGlassIcon } from './icons';
+import { PencilIcon, TrashIcon, EyeIcon, PlusIcon, MagnifyingGlassIcon, CalendarDaysIcon, XMarkIcon } from './icons';
 import { formatCurrency, formatDateTime, getBillDateCategory } from '../utils/dateUtils';
 import BillViewModal from './BillViewModal';
 import { useShopSettings } from '../hooks/useShopSettings';
@@ -64,6 +64,11 @@ const BillList: React.FC<BillListProps> = ({ bills, onEdit, onDelete, onAddNew, 
     if (onClearTargetDate && e.target.value === '') {
         onClearTargetDate();
     }
+  };
+
+  const handleClearDate = () => {
+      setFilterDate('');
+      if (onClearTargetDate) onClearTargetDate();
   };
 
   // 1. Filter and Sort ALL bills
@@ -154,7 +159,10 @@ const BillList: React.FC<BillListProps> = ({ bills, onEdit, onDelete, onAddNew, 
         </div>
         
         {/* Date Filter */}
-        <div className="sm:w-48">
+        <div className="relative group sm:w-48">
+             <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
+                <CalendarDaysIcon className="w-5 h-5 text-text-light group-focus-within:text-primary transition-colors" />
+             </div>
              <input
                 type={filterDate ? "date" : "text"}
                 value={filterDate}
@@ -165,9 +173,17 @@ const BillList: React.FC<BillListProps> = ({ bills, onEdit, onDelete, onAddNew, 
                         e.target.type = 'text';
                     }
                 }}
-                className="w-full px-4 py-3 border border-gray-100 rounded-xl outline-none text-text-main bg-surface shadow-md focus:shadow-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 [color-scheme:light] placeholder:text-text-light text-sm sm:text-base"
+                className="w-full pl-10 sm:pl-11 pr-10 py-3 border border-gray-100 rounded-xl outline-none text-text-main bg-surface shadow-md focus:shadow-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 [color-scheme:light] placeholder:text-text-light text-sm sm:text-base [&::-webkit-calendar-picker-indicator]:bg-transparent [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0"
                 placeholder="Chọn ngày"
             />
+            {filterDate && (
+                <button 
+                    onClick={handleClearDate}
+                    className="absolute inset-y-0 right-0 pr-3 sm:pr-4 flex items-center cursor-pointer text-text-light hover:text-red-500 transition-colors"
+                >
+                    <XMarkIcon className="w-5 h-5" />
+                </button>
+            )}
         </div>
       </div>
 

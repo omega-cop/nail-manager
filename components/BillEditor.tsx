@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import type { Bill, ServiceItem, PredefinedService } from '../types';
-import { TrashIcon } from './icons';
+import type { Bill, ServiceItem, PredefinedService, ServiceCategory } from '../types';
+import { TrashIcon, ChevronDownIcon, ChevronUpIcon } from './icons';
 import { getTodayDateString, formatCurrency, getCurrentTimeString } from '../utils/dateUtils';
 
 interface BillEditorProps {
@@ -9,10 +9,11 @@ interface BillEditorProps {
   onSave: (bill: Bill) => void;
   onCancel: () => void;
   services: PredefinedService[];
+  categories?: ServiceCategory[];
   customerNames: string[];
 }
 
-const BillEditor: React.FC<BillEditorProps> = ({ bill, onSave, onCancel, services, customerNames }) => {
+const BillEditor: React.FC<BillEditorProps> = ({ bill, onSave, onCancel, services, categories, customerNames }) => {
   const [customerName, setCustomerName] = useState('');
   const [date, setDate] = useState(getTodayDateString());
   const [time, setTime] = useState(getCurrentTimeString());
@@ -23,6 +24,9 @@ const BillEditor: React.FC<BillEditorProps> = ({ bill, onSave, onCancel, service
   // Discount states
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [discountType, setDiscountType] = useState<'percent' | 'amount'>('amount');
+
+  // Collapsible State
+  const [isCustomerInfoOpen, setIsCustomerInfoOpen] = useState(true);
 
   useEffect(() => {
     if (bill) {
@@ -35,13 +39,14 @@ const BillEditor: React.FC<BillEditorProps> = ({ bill, onSave, onCancel, service
       
       const enrichedItems = bill.items.map(item => ({
         ...item,
-        quantity: item.quantity || 1
+        quantity: item.quantity || 1,
+        // If editing old bill, might need to ensure variant info is consistent if needed, but item stores snapshots.
       }));
       setItems(enrichedItems);
 
-      // Load discount info
       setDiscountValue(bill.discountValue || 0);
       setDiscountType(bill.discountType || 'amount');
+      setIsCustomerInfoOpen(false); // Auto collapse on edit to show items
     } else {
       setCustomerName('');
       setDate(getTodayDateString());
@@ -49,6 +54,7 @@ const BillEditor: React.FC<BillEditorProps> = ({ bill, onSave, onCancel, service
       setItems([{ id: `temp-${Date.now()}`, serviceId: '', name: '', price: 0, quantity: 1 }]);
       setDiscountValue(0);
       setDiscountType('amount');
+      setIsCustomerInfoOpen(true);
     }
   }, [bill]);
 
@@ -85,10 +91,36 @@ const BillEditor: React.FC<BillEditorProps> = ({ bill, onSave, onCancel, service
     const item = { ...newItems[index] };
     item.serviceId = service.id;
     item.name = service.name;
-    item.quantity = 1; // Reset quantity on service change
-    item.price = service.price; // Base price for quantity 1
+    item.quantity = 1;
+    
+    // Handle Variable Price
+    if (service.priceType === 'variable' && service.variants && service.variants.length > 0) {
+        const defaultVariant = service.variants[0];
+        item.price = defaultVariant.price;
+        item.variantName = defaultVariant.name;
+    } else {
+        item.price = service.price;
+        item.variantName = undefined;
+    }
+
     newItems[index] = item;
     setItems(newItems);
+  };
+
+  const handleVariantChange = (index: number, variantName: string) => {
+      const newItems = [...items];
+      const item = { ...newItems[index] };
+      const service = services.find(s => s.id === item.serviceId);
+      
+      if (service && service.variants) {
+          const variant = service.variants.find(v => v.name === variantName);
+          if (variant) {
+              item.price = variant.price * item.quantity;
+              item.variantName = variant.name;
+              newItems[index] = item;
+              setItems(newItems);
+          }
+      }
   };
 
   const handleQuantityChange = (index: number, newQuantity: number) => {
@@ -100,7 +132,14 @@ const BillEditor: React.FC<BillEditorProps> = ({ bill, onSave, onCancel, service
     
     if (service) {
         item.quantity = newQuantity;
-        item.price = service.price * newQuantity;
+        
+        let unitPrice = service.price;
+        if (service.priceType === 'variable' && service.variants) {
+            const variant = service.variants.find(v => v.name === item.variantName);
+            if (variant) unitPrice = variant.price;
+        }
+
+        item.price = unitPrice * newQuantity;
         newItems[index] = item;
         setItems(newItems);
     }
@@ -140,6 +179,7 @@ const BillEditor: React.FC<BillEditorProps> = ({ bill, onSave, onCancel, service
 
     if (!customerName.trim()) {
         alert("Vui lòng điền tên khách hàng.");
+        setIsCustomerInfoOpen(true);
         return;
     }
 
@@ -174,63 +214,129 @@ const BillEditor: React.FC<BillEditorProps> = ({ bill, onSave, onCancel, service
 
   const inputBaseClasses = "w-full px-4 py-2 border rounded-lg transition-all duration-200 outline-none text-text-main placeholder:text-text-light bg-secondary focus:bg-surface focus:border-primary focus:ring-2 focus:ring-primary/30";
 
+  const renderServiceOptions = () => {
+      if (!categories) {
+          return services.map(service => (
+              <option key={service.id} value={service.id}>{service.name}</option>
+          ));
+      }
+
+      const groupedServices: Record<string, PredefinedService[]> = {};
+      categories.forEach(cat => groupedServices[cat.id] = []);
+      groupedServices['uncategorized'] = [];
+
+      services.forEach(service => {
+          if (service.categoryId && groupedServices[service.categoryId]) {
+              groupedServices[service.categoryId].push(service);
+          } else {
+              groupedServices['uncategorized'].push(service);
+          }
+      });
+
+      return (
+          <>
+              <option value="" disabled>-- Chọn dịch vụ --</option>
+              {categories.map(cat => {
+                  const catServices = groupedServices[cat.id];
+                  if (catServices.length === 0) return null;
+                  return (
+                      <optgroup key={cat.id} label={cat.name}>
+                          {catServices.map(service => (
+                              <option key={service.id} value={service.id}>{service.name}</option>
+                          ))}
+                      </optgroup>
+                  );
+              })}
+              {groupedServices['uncategorized'].length > 0 && (
+                  <optgroup label="Khác">
+                      {groupedServices['uncategorized'].map(service => (
+                          <option key={service.id} value={service.id}>{service.name}</option>
+                      ))}
+                  </optgroup>
+              )}
+          </>
+      );
+  };
+
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl mx-auto bg-surface p-4 sm:p-8 rounded-lg shadow-sm space-y-6">
       <h2 className="text-xl sm:text-2xl font-bold text-center text-text-main">{bill ? 'Chỉnh Sửa Hóa Đơn' : 'Tạo Hóa Đơn Mới'}</h2>
       
-      <div className="space-y-4">
-        <div className="relative" onBlur={handleBlur}>
-          <label htmlFor="customerName" className="block text-sm font-medium text-text-main mb-1">Tên Khách Hàng</label>
-          <input
-            id="customerName"
-            type="text"
-            value={customerName}
-            onChange={handleCustomerNameChange}
-            onFocus={() => updateSuggestions(customerName)}
-            autoComplete="off"
-            required
-            className={`${inputBaseClasses} ${customerName ? 'border-border' : 'border-transparent hover:border-primary/40'}`}
-            placeholder="ví dụ: Nguyễn Thị A"
-          />
-          {isSuggestionsVisible && suggestions.length > 0 && (
-            <ul className="absolute z-20 w-full bg-surface border border-border rounded-b-lg shadow-lg max-h-48 overflow-y-auto mt-1">
-              {suggestions.map((name, index) => (
-                <li
-                  key={index}
-                  onClick={() => handleSuggestionClick(name)}
-                  className="px-4 py-2 hover:bg-secondary cursor-pointer"
-                >
-                  {name}
-                </li>
-              ))}
-            </ul>
+      {/* Customer Info Section - Collapsible */}
+      <div className="border border-border rounded-lg overflow-hidden">
+          <button 
+            type="button"
+            onClick={() => setIsCustomerInfoOpen(!isCustomerInfoOpen)}
+            className="w-full flex justify-between items-center p-4 bg-secondary/20 hover:bg-secondary/40 transition-colors"
+          >
+              <span className="font-semibold text-text-main">Thông Tin Khách Hàng</span>
+              {isCustomerInfoOpen ? <ChevronUpIcon className="w-5 h-5 text-text-light"/> : <ChevronDownIcon className="w-5 h-5 text-text-light"/>}
+          </button>
+          
+          {isCustomerInfoOpen && (
+            <div className="p-4 space-y-4 border-t border-border bg-white">
+                <div className="relative" onBlur={handleBlur}>
+                <label htmlFor="customerName" className="block text-sm font-medium text-text-main mb-1">Tên Khách Hàng</label>
+                <input
+                    id="customerName"
+                    type="text"
+                    value={customerName}
+                    onChange={handleCustomerNameChange}
+                    onFocus={() => updateSuggestions(customerName)}
+                    autoComplete="off"
+                    required
+                    className={`${inputBaseClasses} ${customerName ? 'border-border' : 'border-transparent hover:border-primary/40'}`}
+                    placeholder="ví dụ: Nguyễn Thị A"
+                />
+                {isSuggestionsVisible && suggestions.length > 0 && (
+                    <ul className="absolute z-20 w-full bg-surface border border-border rounded-b-lg shadow-lg max-h-48 overflow-y-auto mt-1">
+                    {suggestions.map((name, index) => (
+                        <li
+                        key={index}
+                        onClick={() => handleSuggestionClick(name)}
+                        className="px-4 py-2 hover:bg-secondary cursor-pointer"
+                        >
+                        {name}
+                        </li>
+                    ))}
+                    </ul>
+                )}
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                    <label htmlFor="date" className="block text-sm font-medium text-text-main mb-1">Ngày</label>
+                    <input
+                        id="date"
+                        type="date"
+                        value={date}
+                        onChange={(e) => setDate(e.target.value)}
+                        onClick={(e) => (e.currentTarget as any).showPicker?.()}
+                        required
+                        max={getTodayDateString()}
+                        className={`${inputBaseClasses} ${date ? 'border-border' : 'border-transparent hover:border-primary/40'} [color-scheme:light] cursor-pointer`}
+                    />
+                    </div>
+                    <div>
+                    <label htmlFor="time" className="block text-sm font-medium text-text-main mb-1">Giờ</label>
+                    <input
+                        id="time"
+                        type="time"
+                        value={time}
+                        onChange={(e) => setTime(e.target.value)}
+                        onClick={(e) => (e.currentTarget as any).showPicker?.()}
+                        required
+                        className={`${inputBaseClasses} ${time ? 'border-border' : 'border-transparent hover:border-primary/40'} [color-scheme:light] cursor-pointer`}
+                    />
+                    </div>
+                </div>
+            </div>
           )}
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="date" className="block text-sm font-medium text-text-main mb-1">Ngày</label>
-              <input
-                id="date"
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                required
-                max={getTodayDateString()}
-                className={`${inputBaseClasses} ${date ? 'border-border' : 'border-transparent hover:border-primary/40'} [color-scheme:light]`}
-              />
-            </div>
-            <div>
-              <label htmlFor="time" className="block text-sm font-medium text-text-main mb-1">Giờ</label>
-               <input
-                id="time"
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                required
-                className={`${inputBaseClasses} ${time ? 'border-border' : 'border-transparent hover:border-primary/40'} [color-scheme:light]`}
-              />
-            </div>
-        </div>
+          {!isCustomerInfoOpen && customerName && (
+              <div className="px-4 py-2 bg-white text-sm text-text-light border-t border-border flex justify-between">
+                  <span>{customerName}</span>
+                  <span>{date} - {time}</span>
+              </div>
+          )}
       </div>
 
       <div className="space-y-3">
@@ -238,23 +344,36 @@ const BillEditor: React.FC<BillEditorProps> = ({ bill, onSave, onCancel, service
         {items.map((item, index) => {
             const serviceDef = services.find(s => s.id === item.serviceId);
             const allowQuantity = serviceDef?.allowQuantity;
+            const isVariablePrice = serviceDef?.priceType === 'variable' && serviceDef.variants && serviceDef.variants.length > 0;
 
             return (
               <div key={item.id} className="bg-secondary/30 p-3 rounded-lg border border-secondary sm:border-none sm:bg-transparent sm:p-0">
-                {/* Mobile Layout: Stacked */}
-                <div className="flex flex-col gap-2 sm:hidden">
+                {/* Mobile Layout: Grid/Stack */}
+                <div className="grid grid-cols-1 gap-2 sm:hidden">
+                    {/* Row 1: Service Selection */}
                     <select
                       value={item.serviceId}
                       onChange={(e) => handleItemChange(index, e.target.value)}
                       required
                       className="w-full px-3 py-2 border border-border rounded-md focus:ring-1 focus:ring-primary focus:border-transparent bg-white text-text-main"
                     >
-                      <option value="" disabled>-- Chọn dịch vụ --</option>
-                      {services.map(service => (
-                        <option key={service.id} value={service.id}>{service.name}</option>
-                      ))}
+                      {renderServiceOptions()}
                     </select>
                     
+                    {/* Row 2: Variant Selection (if applicable) */}
+                    {isVariablePrice && (
+                        <select 
+                            value={item.variantName || ''} 
+                            onChange={(e) => handleVariantChange(index, e.target.value)}
+                            className="w-full px-3 py-2 border border-border rounded-md bg-white text-text-main text-sm"
+                        >
+                            {serviceDef?.variants?.map(v => (
+                                <option key={v.id} value={v.name}>{v.name} ({formatCurrency(v.price)})</option>
+                            ))}
+                        </select>
+                    )}
+
+                    {/* Row 3: Controls */}
                     <div className="flex items-center gap-2">
                         {allowQuantity && (
                             <div className="flex items-center w-20 shrink-0">
@@ -282,17 +401,27 @@ const BillEditor: React.FC<BillEditorProps> = ({ bill, onSave, onCancel, service
 
                 {/* Desktop Layout: Row */}
                 <div className="hidden sm:flex sm:flex-wrap sm:items-center sm:gap-2">
-                    <select
-                      value={item.serviceId}
-                      onChange={(e) => handleItemChange(index, e.target.value)}
-                      required
-                      className="flex-grow min-w-[150px] px-3 py-2 border border-border rounded-md focus:ring-1 focus:ring-primary focus:border-transparent bg-white text-text-main"
-                    >
-                      <option value="" disabled>-- Chọn dịch vụ --</option>
-                      {services.map(service => (
-                        <option key={service.id} value={service.id}>{service.name}</option>
-                      ))}
-                    </select>
+                    <div className="flex-grow min-w-[150px] flex flex-col gap-1">
+                        <select
+                        value={item.serviceId}
+                        onChange={(e) => handleItemChange(index, e.target.value)}
+                        required
+                        className="w-full px-3 py-2 border border-border rounded-md focus:ring-1 focus:ring-primary focus:border-transparent bg-white text-text-main"
+                        >
+                        {renderServiceOptions()}
+                        </select>
+                        {isVariablePrice && (
+                            <select 
+                                value={item.variantName || ''} 
+                                onChange={(e) => handleVariantChange(index, e.target.value)}
+                                className="w-full px-2 py-1 border border-border rounded-md bg-secondary/50 text-text-main text-xs"
+                            >
+                                {serviceDef?.variants?.map(v => (
+                                    <option key={v.id} value={v.name}>{v.name}</option>
+                                ))}
+                            </select>
+                        )}
+                    </div>
                     
                     {allowQuantity && (
                         <div className="flex items-center">
