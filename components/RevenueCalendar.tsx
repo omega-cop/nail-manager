@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import type { Bill } from '../types';
-import { formatCurrency } from '../utils/dateUtils';
+import { formatCurrency, formatCompactCurrency } from '../utils/dateUtils';
 import { ArrowLeftIcon, ChevronLeftIcon, ChevronRightIcon } from './icons';
 
 interface RevenueCalendarProps {
@@ -161,7 +161,7 @@ const RevenueCalendar: React.FC<RevenueCalendarProps> = ({ bills, onBack, onSele
                 </span>
                 {hasRevenue && (
                   <span className="text-right font-bold text-[10px] sm:text-sm text-primary break-words leading-tight">
-                    {formatCurrency(cell.revenue)}
+                    {formatCompactCurrency(cell.revenue)}
                   </span>
                 )}
               </button>
