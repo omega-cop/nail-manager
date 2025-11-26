@@ -200,7 +200,7 @@ const BillViewModal: React.FC<BillViewModalProps> = ({ bill, onClose, shopName, 
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 p-4" onClick={onClose}>
+    <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-[60] p-4" onClick={onClose}>
       {/* Added max-h-[calc(100dvh-5rem)] to prevent overlap with bottom menu (approx 80px) */}
       <div className="bg-white rounded-lg shadow-2xl w-full max-w-md flex flex-col max-h-[calc(100dvh-5rem)] overflow-hidden" onClick={(e) => e.stopPropagation()}>
         
