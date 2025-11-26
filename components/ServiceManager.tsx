@@ -279,35 +279,11 @@ const ServiceManager: React.FC<ServiceManagerProps> = ({
         </div>
       )}
 
-      {/* --- CATEGORIES TAB CONTENT --- */}
-      {activeTab === 'categories' && (
-          <div className="bg-surface rounded-lg shadow-sm overflow-hidden">
-              <div className="divide-y divide-secondary">
-                  {sortedCategories.map(cat => (
-                      <div key={cat.id} className="p-4 flex items-center justify-between hover:bg-secondary/30 transition-colors">
-                          <p className="font-medium text-text-main">{cat.name}</p>
-                          <div className="flex items-center space-x-2">
-                              <button onClick={() => openEditCategory(cat)} className="p-2 text-text-light hover:text-primary transition-colors rounded-full hover:bg-secondary">
-                                  <PencilIcon className="w-5 h-5" />
-                              </button>
-                              <button onClick={() => confirmDeleteCategory(cat.id)} className="p-2 text-text-light hover:text-red-500 transition-colors rounded-full hover:bg-secondary">
-                                  <TrashIcon className="w-5 h-5" />
-                              </button>
-                          </div>
-                      </div>
-                  ))}
-              </div>
-              {sortedCategories.length === 0 && (
-                  <div className="p-8 text-center text-text-light italic">Chưa có loại dịch vụ nào.</div>
-              )}
-          </div>
-      )}
-
       {/* --- MODALS --- */}
 
       {/* Service Modal */}
       {isServiceModalOpen && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4">
             {/* Added max-h-[calc(100dvh-5rem)] to prevent overlap with bottom menu */}
             <div className="bg-surface w-full max-w-md rounded-lg shadow-xl overflow-hidden max-h-[calc(100dvh-5rem)] flex flex-col">
                 <div className="px-6 py-4 border-b border-secondary flex justify-between items-center shrink-0">
@@ -410,7 +386,7 @@ const ServiceManager: React.FC<ServiceManagerProps> = ({
 
       {/* Category Modal */}
       {isCategoryModalOpen && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4">
             {/* Added max-h-[calc(100dvh-5rem)] to prevent overlap with bottom menu */}
             <div className="bg-surface w-full max-w-sm rounded-lg shadow-xl overflow-hidden max-h-[calc(100dvh-5rem)] flex flex-col">
                 <div className="px-6 py-4 border-b border-secondary">
