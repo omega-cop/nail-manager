@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => {
         react(),
         VitePWA({
           registerType: 'autoUpdate',
-          includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+          includeAssets: ['favicon.ico', 'pwa-512x512.png', 'masked-icon.svg'],
           manifest: {
             name: 'Hóa Đơn Nail Spa Pro',
             short_name: 'Nail Spa',
