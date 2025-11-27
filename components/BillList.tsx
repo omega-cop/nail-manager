@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import type { Bill } from '../types';
-import { PencilIcon, TrashIcon, EyeIcon, PlusIcon, MagnifyingGlassIcon, CalendarDaysIcon, XMarkIcon } from './icons';
+import { PencilIcon, TrashIcon, EyeIcon, PlusIcon, MagnifyingGlassIcon, CalendarDaysIcon, XMarkIcon, ArrowUpIcon } from './icons';
 import { formatCurrency, formatDateTime, getBillDateCategory } from '../utils/dateUtils';
 import BillViewModal from './BillViewModal';
 import { useShopSettings } from '../hooks/useShopSettings';
@@ -39,6 +39,7 @@ const BillList: React.FC<BillListProps> = ({ bills, onEdit, onDelete, onAddNew, 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDate, setFilterDate] = useState('');
   const [viewingBill, setViewingBill] = useState<Bill | null>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   
   // Lazy Load States
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -58,6 +59,27 @@ const BillList: React.FC<BillListProps> = ({ bills, onEdit, onDelete, onAddNew, 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
   }, [searchTerm, filterDate, bills]);
+
+  // Handle Scroll To Top Button Visibility
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setShowScrollTop(true);
+      } else {
+        setShowScrollTop(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilterDate(e.target.value);
@@ -256,6 +278,17 @@ const BillList: React.FC<BillListProps> = ({ bills, onEdit, onDelete, onAddNew, 
 
       {viewingBill && (
         <BillViewModal bill={viewingBill} onClose={() => setViewingBill(null)} shopName={shopName} billTheme={billTheme} />
+      )}
+      
+      {/* Scroll To Top Button */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-20 right-4 z-40 bg-primary text-white p-3 rounded-full shadow-lg hover:bg-primary-hover transition-all duration-300 animate-bounce-short"
+          aria-label="Lên đầu trang"
+        >
+          <ArrowUpIcon className="w-6 h-6" />
+        </button>
       )}
     </div>
   );
