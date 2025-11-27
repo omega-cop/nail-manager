@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import type { PredefinedService, ServiceCategory, PriceVariant } from '../types';
 import { PencilIcon, TrashIcon, PlusIcon } from './icons';
 import { formatCurrency } from '../utils/dateUtils';
@@ -22,6 +22,7 @@ const ServiceManager: React.FC<ServiceManagerProps> = ({
     categories, addCategory, updateCategory, deleteCategory
 }) => {
   const [activeTab, setActiveTab] = useState<Tab>('services');
+  const [filterCategory, setFilterCategory] = useState<string>('all');
   
   // --- Modal States ---
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
@@ -160,9 +161,24 @@ const ServiceManager: React.FC<ServiceManagerProps> = ({
       setDeleteType(null);
   };
 
-  // Sort data
-  const sortedServices = [...services].sort((a, b) => a.name.localeCompare(b.name));
+  // Sort and Filter Data
   const sortedCategories = [...categories].sort((a, b) => a.name.localeCompare(b.name));
+  
+  const filteredServices = useMemo(() => {
+    let list = [...services];
+    
+    // Filter
+    if (filterCategory !== 'all') {
+        if (filterCategory === 'uncategorized') {
+             list = list.filter(s => !s.categoryId || !categories.find(c => c.id === s.categoryId));
+        } else {
+             list = list.filter(s => s.categoryId === filterCategory);
+        }
+    }
+    
+    // Sort by name
+    return list.sort((a, b) => a.name.localeCompare(b.name));
+  }, [services, filterCategory, categories]);
 
   return (
     <div className="pb-10">
@@ -200,82 +216,173 @@ const ServiceManager: React.FC<ServiceManagerProps> = ({
 
       {/* --- SERVICES TAB CONTENT --- */}
       {activeTab === 'services' && (
-        <div className="bg-surface rounded-lg shadow-sm overflow-hidden">
-            {/* Mobile View */}
-            <div className="md:hidden divide-y divide-secondary">
-                {sortedServices.map(service => {
-                    const catName = categories.find(c => c.id === service.categoryId)?.name || 'Khác';
-                    const displayPrice = service.priceType === 'variable' 
-                        ? `${service.variants?.length || 0} mức giá`
-                        : formatCurrency(service.price);
+        <div className="space-y-4">
+            {/* Category Filter Buttons */}
+            <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+                <button 
+                    onClick={() => setFilterCategory('all')}
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors border ${filterCategory === 'all' ? 'bg-primary text-white border-primary' : 'bg-surface text-text-main border-secondary hover:bg-secondary'}`}
+                >
+                    Tất cả
+                </button>
+                {sortedCategories.map(cat => (
+                    <button 
+                        key={cat.id} 
+                        onClick={() => setFilterCategory(cat.id)}
+                        className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors border ${filterCategory === cat.id ? 'bg-primary text-white border-primary' : 'bg-surface text-text-main border-secondary hover:bg-secondary'}`}
+                    >
+                        {cat.name}
+                    </button>
+                ))}
+                 {/* Optional: Button for services without category */}
+                 <button 
+                    onClick={() => setFilterCategory('uncategorized')}
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors border ${filterCategory === 'uncategorized' ? 'bg-primary text-white border-primary' : 'bg-surface text-text-main border-secondary hover:bg-secondary'}`}
+                >
+                    Khác
+                </button>
+            </div>
 
-                    return (
-                        <div key={service.id} className="p-4 flex justify-between items-start gap-2">
-                            <div className="min-w-0">
-                                <p className="font-medium text-text-main">{service.name}</p>
-                                <p className="text-xs text-text-light mt-0.5">{catName}</p>
-                                <div className="flex flex-wrap items-center gap-2 mt-1">
-                                    <p className="text-primary font-semibold">{displayPrice}</p>
-                                    {service.allowQuantity && <span className="text-[10px] px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-full font-medium whitespace-nowrap">Đa số lượng</span>}
-                                    {service.priceType === 'variable' && <span className="text-[10px] px-2 py-0.5 bg-orange-50 text-orange-600 rounded-full font-medium whitespace-nowrap">Giá tùy chọn</span>}
+            <div className="bg-surface rounded-lg shadow-sm overflow-hidden">
+                {/* Mobile View */}
+                <div className="md:hidden divide-y divide-secondary">
+                    {filteredServices.length > 0 ? filteredServices.map(service => {
+                        const catName = categories.find(c => c.id === service.categoryId)?.name || 'Khác';
+                        const displayPrice = service.priceType === 'variable' 
+                            ? `${service.variants?.length || 0} mức giá`
+                            : formatCurrency(service.price);
+
+                        return (
+                            <div key={service.id} className="p-4 flex justify-between items-start gap-2">
+                                <div className="min-w-0">
+                                    <p className="font-medium text-text-main">{service.name}</p>
+                                    <p className="text-xs text-text-light mt-0.5">{catName}</p>
+                                    <div className="flex flex-wrap items-center gap-2 mt-1">
+                                        <p className="text-primary font-semibold">{displayPrice}</p>
+                                        {service.allowQuantity && <span className="text-[10px] px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-full font-medium whitespace-nowrap">Đa số lượng</span>}
+                                        {service.priceType === 'variable' && <span className="text-[10px] px-2 py-0.5 bg-orange-50 text-orange-600 rounded-full font-medium whitespace-nowrap">Giá tùy chọn</span>}
+                                    </div>
+                                </div>
+                                <div className="flex items-center space-x-1 shrink-0">
+                                    <button onClick={() => openEditService(service)} className="p-2 text-text-light hover:text-primary transition-colors rounded-full hover:bg-secondary">
+                                        <PencilIcon className="w-5 h-5" />
+                                    </button>
+                                    <button onClick={() => confirmDeleteService(service.id)} className="p-2 text-text-light hover:text-red-500 transition-colors rounded-full hover:bg-secondary">
+                                        <TrashIcon className="w-5 h-5" />
+                                    </button>
                                 </div>
                             </div>
-                            <div className="flex items-center space-x-1 shrink-0">
-                                <button onClick={() => openEditService(service)} className="p-2 text-text-light hover:text-primary transition-colors rounded-full hover:bg-secondary">
-                                    <PencilIcon className="w-5 h-5" />
-                                </button>
-                                <button onClick={() => confirmDeleteService(service.id)} className="p-2 text-text-light hover:text-red-500 transition-colors rounded-full hover:bg-secondary">
-                                    <TrashIcon className="w-5 h-5" />
-                                </button>
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
+                        );
+                    }) : (
+                        <div className="p-8 text-center text-text-light">Không có dịch vụ nào trong danh mục này.</div>
+                    )}
+                </div>
 
-            {/* Desktop View */}
-            <div className="hidden md:block overflow-x-auto">
-            <table className="w-full text-left">
-                <thead className="bg-secondary">
-                <tr className="border-b border-secondary/20">
-                    <th className="p-4 font-semibold text-text-main text-sm">Tên Dịch Vụ</th>
-                    <th className="p-4 font-semibold text-text-main text-sm">Loại Dịch Vụ</th>
-                    <th className="p-4 font-semibold text-text-main text-sm text-right">Giá</th>
-                    <th className="p-4 font-semibold text-text-main text-sm text-center">Tùy Chọn</th>
-                    <th className="p-4 font-semibold text-text-main text-sm text-center">Hành Động</th>
-                </tr>
-                </thead>
-                <tbody className="divide-y divide-secondary">
-                {sortedServices.map(service => {
-                    const catName = categories.find(c => c.id === service.categoryId)?.name || 'Khác';
-                    const displayPrice = service.priceType === 'variable' 
-                        ? `${service.variants?.length || 0} mức giá`
-                        : formatCurrency(service.price);
-                    return (
-                        <tr key={service.id} className="hover:bg-secondary/30">
-                        <td className="p-4 text-text-main">{service.name}</td>
-                        <td className="p-4 text-text-light text-sm">{catName}</td>
-                        <td className="p-4 text-right font-medium text-text-main">{displayPrice}</td>
-                        <td className="p-4 text-center space-x-2">
-                            {service.allowQuantity && <span className="text-xs px-2 py-1 bg-indigo-50 text-indigo-600 rounded-full font-medium">Đa số lượng</span>}
-                            {service.priceType === 'variable' && <span className="text-xs px-2 py-1 bg-orange-50 text-orange-600 rounded-full font-medium">Giá tùy chọn</span>}
-                        </td>
-                        <td className="p-4">
-                            <div className="flex justify-center space-x-2">
-                                <button onClick={() => openEditService(service)} className="p-2 text-text-light hover:text-primary transition-colors rounded-full hover:bg-secondary">
-                                    <PencilIcon className="w-5 h-5" />
-                                </button>
-                                <button onClick={() => confirmDeleteService(service.id)} className="p-2 text-text-light hover:text-red-500 transition-colors rounded-full hover:bg-secondary">
-                                    <TrashIcon className="w-5 h-5" />
-                                </button>
-                            </div>
-                        </td>
+                {/* Desktop View */}
+                <div className="hidden md:block overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead className="bg-secondary">
+                        <tr className="border-b border-secondary/20">
+                            <th className="p-4 font-semibold text-text-main text-sm">Tên Dịch Vụ</th>
+                            <th className="p-4 font-semibold text-text-main text-sm">Loại Dịch Vụ</th>
+                            <th className="p-4 font-semibold text-text-main text-sm text-right">Giá</th>
+                            <th className="p-4 font-semibold text-text-main text-sm text-center">Tùy Chọn</th>
+                            <th className="p-4 font-semibold text-text-main text-sm text-center">Hành Động</th>
                         </tr>
-                    );
-                })}
-                </tbody>
-            </table>
+                        </thead>
+                        <tbody className="divide-y divide-secondary">
+                        {filteredServices.length > 0 ? filteredServices.map(service => {
+                            const catName = categories.find(c => c.id === service.categoryId)?.name || 'Khác';
+                            const displayPrice = service.priceType === 'variable' 
+                                ? `${service.variants?.length || 0} mức giá`
+                                : formatCurrency(service.price);
+                            return (
+                                <tr key={service.id} className="hover:bg-secondary/30">
+                                <td className="p-4 text-text-main">{service.name}</td>
+                                <td className="p-4 text-text-light text-sm">{catName}</td>
+                                <td className="p-4 text-right font-medium text-text-main">{displayPrice}</td>
+                                <td className="p-4 text-center space-x-2">
+                                    {service.allowQuantity && <span className="text-xs px-2 py-1 bg-indigo-50 text-indigo-600 rounded-full font-medium">Đa số lượng</span>}
+                                    {service.priceType === 'variable' && <span className="text-xs px-2 py-1 bg-orange-50 text-orange-600 rounded-full font-medium">Giá tùy chọn</span>}
+                                </td>
+                                <td className="p-4">
+                                    <div className="flex justify-center space-x-2">
+                                        <button onClick={() => openEditService(service)} className="p-2 text-text-light hover:text-primary transition-colors rounded-full hover:bg-secondary">
+                                            <PencilIcon className="w-5 h-5" />
+                                        </button>
+                                        <button onClick={() => confirmDeleteService(service.id)} className="p-2 text-text-light hover:text-red-500 transition-colors rounded-full hover:bg-secondary">
+                                            <TrashIcon className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                </td>
+                                </tr>
+                            );
+                        }) : (
+                             <tr>
+                                <td colSpan={5} className="p-8 text-center text-text-light">Không có dịch vụ nào trong danh mục này.</td>
+                            </tr>
+                        )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
+        </div>
+      )}
+      
+      {/* --- CATEGORIES TAB CONTENT (Newly Added) --- */}
+      {activeTab === 'categories' && (
+        <div className="bg-surface rounded-lg shadow-sm overflow-hidden">
+             {/* Mobile View */}
+             <div className="md:hidden divide-y divide-secondary">
+                {sortedCategories.length > 0 ? sortedCategories.map(category => (
+                    <div key={category.id} className="p-4 flex justify-between items-center">
+                        <div className="font-medium text-text-main">{category.name}</div>
+                        <div className="flex items-center space-x-1 shrink-0">
+                            <button onClick={() => openEditCategory(category)} className="p-2 text-text-light hover:text-primary transition-colors rounded-full hover:bg-secondary">
+                                <PencilIcon className="w-5 h-5" />
+                            </button>
+                            <button onClick={() => confirmDeleteCategory(category.id)} className="p-2 text-text-light hover:text-red-500 transition-colors rounded-full hover:bg-secondary">
+                                <TrashIcon className="w-5 h-5" />
+                            </button>
+                        </div>
+                    </div>
+                )) : (
+                     <div className="p-8 text-center text-text-light">Chưa có loại dịch vụ nào.</div>
+                )}
+             </div>
+
+             {/* Desktop View */}
+             <div className="hidden md:block">
+                <table className="w-full text-left">
+                    <thead className="bg-secondary">
+                        <tr className="border-b border-secondary/20">
+                            <th className="p-4 font-semibold text-text-main text-sm w-full">Tên Loại Dịch Vụ</th>
+                            <th className="p-4 font-semibold text-text-main text-sm text-center w-32">Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-secondary">
+                        {sortedCategories.length > 0 ? sortedCategories.map(category => (
+                            <tr key={category.id} className="hover:bg-secondary/30">
+                                <td className="p-4 text-text-main">{category.name}</td>
+                                <td className="p-4">
+                                    <div className="flex justify-center space-x-2">
+                                        <button onClick={() => openEditCategory(category)} className="p-2 text-text-light hover:text-primary transition-colors rounded-full hover:bg-secondary">
+                                            <PencilIcon className="w-5 h-5" />
+                                        </button>
+                                        <button onClick={() => confirmDeleteCategory(category.id)} className="p-2 text-text-light hover:text-red-500 transition-colors rounded-full hover:bg-secondary">
+                                            <TrashIcon className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        )) : (
+                            <tr>
+                                <td colSpan={2} className="p-8 text-center text-text-light">Chưa có loại dịch vụ nào.</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+             </div>
         </div>
       )}
 
