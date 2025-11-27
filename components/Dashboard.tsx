@@ -41,13 +41,24 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ title, amount, description, i
     </div>
 );
 
+// Helper to get local YYYY-MM-DD string from a date object or string
+const getLocalDateKey = (dateInput: string | Date): string => {
+    const d = new Date(dateInput);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
+
 const Dashboard: React.FC<DashboardProps> = ({ bills, onViewRevenueHistory }) => {
     
   const dailyRevenueData = useMemo(() => {
     const data: { [key: string]: number } = {};
     bills.forEach(bill => {
         if(isWithinThisWeek(bill.date)) {
-            data[bill.date] = (data[bill.date] || 0) + bill.total;
+            // Fix: Normalize bill.date to YYYY-MM-DD key
+            const dateKey = getLocalDateKey(bill.date);
+            data[dateKey] = (data[dateKey] || 0) + bill.total;
         }
     });
     return Object.entries(data).map(([date, revenue]) => ({ date, revenue })).sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -70,26 +81,26 @@ const Dashboard: React.FC<DashboardProps> = ({ bills, onViewRevenueHistory }) =>
 
   const weeklyChartData = useMemo(() => {
     const today = new Date();
+    // Initialize array for last 7 days
     const data = Array(7).fill(null).map((_, i) => {
         const d = new Date(today);
         d.setDate(today.getDate() - i);
         return {
             name: d.toLocaleDateString('vi-VN', { weekday: 'short' }),
-            date: d.toISOString().split('T')[0],
+            date: getLocalDateKey(d), // Key format: YYYY-MM-DD
             revenue: 0
         };
     }).reverse();
 
+    // Populate revenue
     bills.forEach(bill => {
-        const billDate = new Date(bill.date);
-        const todayMinus7 = new Date();
-        todayMinus7.setDate(today.getDate() - 6);
-        todayMinus7.setHours(0,0,0,0);
-        if (billDate >= todayMinus7) {
-            const dayData = data.find(d => d.date === bill.date);
-            if(dayData) {
-                dayData.revenue += bill.total;
-            }
+        // Fix: Normalize bill.date to YYYY-MM-DD to match chart keys
+        const billDateKey = getLocalDateKey(bill.date);
+        
+        // Find the matching day in the chart data
+        const dayData = data.find(d => d.date === billDateKey);
+        if(dayData) {
+            dayData.revenue += bill.total;
         }
     });
 
