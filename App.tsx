@@ -348,7 +348,10 @@ const App: React.FC = () => {
         </div>
       )}
 
-      <header className="px-4 sm:px-6 py-3 sm:py-4 bg-surface sticky top-0 z-10 shadow-sm">
+      {/* Spacer to prevent content overlap with fixed header */}
+      <div className="h-16 sm:h-[72px] w-full bg-transparent"></div>
+
+      <header className={`px-4 sm:px-6 py-3 sm:py-4 bg-surface fixed top-0 left-0 right-0 z-40 shadow-sm transition-transform duration-300 ${isNavVisible ? 'translate-y-0' : '-translate-y-full'}`}>
         <div className="flex justify-between items-center max-w-7xl mx-auto">
             <button 
                 onClick={openShopNameEditor}
