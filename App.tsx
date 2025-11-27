@@ -34,6 +34,10 @@ const App: React.FC = () => {
   // State for Theme Selector
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
 
+  // Scroll Aware Navigation State
+  const [isNavVisible, setIsNavVisible] = useState(true);
+  const lastScrollY = useRef(0);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const settingsMenuRef = useRef<HTMLDivElement>(null);
 
@@ -48,6 +52,26 @@ const App: React.FC = () => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
+  }, []);
+
+  // Handle Scroll for Menu Visibility
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
+        // Scrolling down & past threshold -> Hide
+        setIsNavVisible(false);
+      } else {
+        // Scrolling up -> Show
+        setIsNavVisible(true);
+      }
+      
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const handleDownloadData = useCallback(() => {
@@ -397,7 +421,7 @@ const App: React.FC = () => {
 
       <div className="fixed bottom-0 left-0 right-0 h-16 bg-transparent pointer-events-none"></div>
 
-      <nav className="fixed bottom-0 left-0 right-0 bg-surface flex items-center justify-around z-50 h-16 px-2 shadow-[0_-1px_3px_0_rgba(0,0,0,0.05)]">
+      <nav className={`fixed bottom-0 left-0 right-0 bg-surface flex items-center justify-around z-50 h-16 px-2 shadow-[0_-1px_3px_0_rgba(0,0,0,0.05)] transition-transform duration-300 ${isNavVisible ? 'translate-y-0' : 'translate-y-full'}`}>
         <NavItem view="dashboard" label="Tổng Quan" icon={<HomeIcon className="w-6 h-6"/>} />
         <NavItem view="list" label="Hóa Đơn" icon={<ListBulletIcon className="w-6 h-6"/>} />
         <NavItem view="services" label="Dịch Vụ" icon={<TagIcon className="w-6 h-6"/>} />
